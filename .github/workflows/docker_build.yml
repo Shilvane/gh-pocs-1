@@ -13,6 +13,10 @@ on:
           - prod
         default: 'dev'
 
+permissions:
+  id-token: write      # Required for Azure federated identity
+  contents: read       # Required to checkout code
+
 jobs:
   DockerImageBuildandPush:
     name: Docker Image Build and Push
