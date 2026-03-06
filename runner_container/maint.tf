@@ -6,8 +6,14 @@ provider "azurerm" {
 variable "location"           { default = "East US" }
 variable "resource_group_name" { default = "rg-gh-runners" }
 variable "runner_count"        { default = 5 }
-variable "github_repo_url"     {default} # Pass via TF_VAR_github_repo_url
-variable "github_token"        {} # Pass via TF_VAR_github_token (Registration Token)
+variable "github_repo_url"     {default="https://github.com/DataAIShift/gh-pocs"} # Pass via TF_VAR_github_repo_url
+
+variable "github_token" {
+  type        = string
+  description = "Registration token for the GitHub runner"
+  sensitive   = true
+}
+
 
 
 
@@ -15,14 +21,14 @@ variable "github_token"        {} # Pass via TF_VAR_github_token (Registration T
 
 # 1. Reference your existing ACR
 data "azurerm_container_registry" "acr" {
-  name                = "your_existing_acr_name" 
-  resource_group_name = "your_acr_resource_group"
+  name                = "containerRegistryPratik1" 
+  resource_group_name = "az-rc-docai-rg-pratik"
 }
 
 # 2. Reference your existing Managed Identity
 data "azurerm_user_assigned_identity" "runner_id" {
-  name                = "your_existing_identity_name"
-  resource_group_name = "your_identity_resource_group"
+  name                = "ai-access-pratik"
+  resource_group_name = "az-rc-docai-rg-pratik"
 }
 
 # 3. Ensure the Identity has AcrPull permissions
@@ -50,7 +56,6 @@ resource "azurerm_container_group" "runners" {
   }
 
   # Tell ACI to use this identity to authenticate with the registry
-  image_registry_identity = data.azurerm_user_assigned_identity.runner_id.id
 
   container {
     name   = "runner"

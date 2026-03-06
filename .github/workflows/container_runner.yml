@@ -160,7 +160,7 @@ jobs:
           
           # Pass variables using the -var flag
           terraform plan `
-            -var="github_runner_token=${{ steps.generate-token.outputs.RUNNER_TOKEN }}" `
+            -var="github_token=${{ steps.generate-token.outputs.RUNNER_TOKEN }}" `
             -var="github_repo_url=https://github.com/${{ github.repository }}" `
             -out=tfplan `
             -input=false
