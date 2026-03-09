@@ -19,7 +19,12 @@ on:
         options:
           - deploy
           - destroy
-        default: plan
+        default: deploy
+      force_rebuild:
+        description: 'Force a rebuild of the Runner VM (Re-registers with new token)'
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   id-token: write      # Required for Azure federated identity
@@ -157,6 +162,13 @@ jobs:
           ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
         run: |
           cd ./terraform_runner
+
+          # Initialize optional replacement argument
+          $extra_args = ""
+          if ("${{ github.event.inputs.force_rebuild }}" -eq "true") {
+            Write-Host "Force rebuild requested. Marking runner_vm for replacement."
+            $extra_args = "-replace=azurerm_linux_virtual_machine.runner_vm"
+          }
           
           # Pass variables using the -var flag
           terraform plan `
@@ -175,6 +187,7 @@ jobs:
             -var="runner_name=${{ env.RUNNER_NAME }}" `
             -var="runner_labels=${{ env.RUNNER_LABELS }}" `
             -var='tags={ "Environment": "${{ github.event.inputs.environment }}", "Project": "Citrix-DAAS-Golden-Image", "ManagedBy": "Terraform", "Stage": "Stage1-Runner", "DeployedBy": "GitHub-Actions" }' `
+            $extra_args `
             -out=tfplan `
             -input=false
     
