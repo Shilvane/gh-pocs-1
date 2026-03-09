@@ -173,19 +173,8 @@ jobs:
           # Pass variables using the -var flag
           terraform plan `
             -var="resource_group_name=${{ env.RUNNER_RESOURCE_GROUP }}" `
-            -var="location=${{ env.AZURE_REGION }}" `
-            -var="vm_name=${{ env.VM_NAME }}" `
-            -var="vm_size=Standard_D2s_v3" `
-            -var="admin_username=${{ env.ADMIN_USERNAME }}" `
             -var="ssh_public_key=${{ steps.ssh-key.outputs.SSH_PUBLIC_KEY }}" `
-            -var="vnet_name=${{ env.AZURE_VNET_NAME }}" `
-            -var="subnet_name=${{ env.AZURE_SUBNET_NAME }}" `
-            -var="vnet_resource_group=${{ env.AZURE_VNET_RESOURCE_GROUP }}" `
-            -var="ubuntu_os_version=22_04-lts-gen2" `
             -var="github_runner_token=${{ steps.generate-token.outputs.RUNNER_TOKEN }}" `
-            -var="github_repo_url=https://github.com/${{ github.repository }}" `
-            -var="runner_name=${{ env.RUNNER_NAME }}" `
-            -var="runner_labels=${{ env.RUNNER_LABELS }}" `
             -var='tags={ "Environment": "${{ github.event.inputs.environment }}", "Project": "Citrix-DAAS-Golden-Image", "ManagedBy": "Terraform", "Stage": "Stage1-Runner", "DeployedBy": "GitHub-Actions" }' `
             $extra_args `
             -out=tfplan `
