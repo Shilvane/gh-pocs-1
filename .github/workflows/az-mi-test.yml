@@ -28,7 +28,8 @@ on:
 
 permissions:
   id-token: write      # Required for Azure federated identity
-  contents: read       # Required to checkout code
+  contents: read   
+  actions: write    # Required to checkout code
 
 env:
   AZURE_REGION: northeurope
