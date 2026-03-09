@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# These variables are populated by Terraform data.template_file
+# These variables are populated by Terraform data.template_file (DO NOT ESCAPE THESE)
 GITHUB_REPO_URL="${repo_url}"
 RUNNER_TOKEN="${token}"
 BASE_RUNNER_NAME="${runner_name}"
@@ -52,8 +52,8 @@ curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 sudo usermod -aG docker $ADMIN_USERNAME
 
-# Install Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+# Install Docker Compose (ESCAPED BASH VARIABLES BELOW)
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$$(uname -s)-$$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
 # Install Azure CLI
@@ -67,16 +67,14 @@ sudo apt-get update -y
 sudo apt-get install -y ansible
 sudo -u $ADMIN_USERNAME ansible-galaxy collection install ansible.windows community.windows azure.azcollection
 
-# Install Github Cli
-echo "Installing GH CLI..."
+# Install Github Cli (ESCAPED BASH VARIABLES BELOW)
 curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
 sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+echo "deb [arch=$$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
 sudo apt-get update && sudo apt-get install gh -y
 
-# Install PowerShell
-echo "Installing PowerShell..."
-wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+# Install PowerShell (ESCAPED BASH VARIABLES BELOW)
+wget -q https://packages.microsoft.com/config/ubuntu/$$(lsb_release -rs)/packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 sudo apt-get update && sudo apt-get install -y powershell
 
@@ -84,23 +82,23 @@ sudo apt-get update && sudo apt-get install -y powershell
 echo "Installing Azure PS Modules..."
 sudo -u $ADMIN_USERNAME pwsh -c "Set-PSRepository -Name psgallery -InstallationPolicy Trusted; Install-Module -Name 'az.accounts', 'az.resources', 'az.storage', 'az.keyvault', 'pester' -Scope CurrentUser -Force"
 
-# Install Packer
+# Install Packer (ESCAPED BASH VARIABLES BELOW)
 echo "Installing Packer..."
 PACKER_VERSION="1.11.2"
-wget https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip
-unzip packer_${PACKER_VERSION}_linux_amd64.zip
-sudo mv packer /usr/local/bin/ && rm packer_${PACKER_VERSION}_linux_amd64.zip
+wget https://releases.hashicorp.com/packer/$${PACKER_VERSION}/packer_$${PACKER_VERSION}_linux_amd64.zip
+unzip packer_$${PACKER_VERSION}_linux_amd64.zip
+sudo mv packer /usr/local/bin/ && rm packer_$${PACKER_VERSION}_linux_amd64.zip
 
-# Install Terraform
+# Install Terraform (ESCAPED BASH VARIABLES BELOW)
 echo "Installing Terraform..."
 wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+echo "deb [arch=$$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $$(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update && sudo apt install terraform -y
 
 # --- RUNNER REGISTRATION LOOP ---
 
-# Note: Using $$ inside Terraform template to escape the dollar sign for bash variables
-RUNNER_VERSION=$(curl -s https://api.github.com/repos/actions/runner/releases/latest | jq -r '.tag_name' | sed 's/v//')
+# Note: All bash variables here use $$ to avoid Terraform interpolation
+RUNNER_VERSION=$$(curl -s https://api.github.com/repos/actions/runner/releases/latest | jq -r '.tag_name' | sed 's/v//')
 TEMP_TAR="/tmp/actions-runner.tar.gz"
 curl -o $TEMP_TAR -L "https://github.com/actions/runner/releases/download/v$${RUNNER_VERSION}/actions-runner-linux-x64-$${RUNNER_VERSION}.tar.gz"
 
