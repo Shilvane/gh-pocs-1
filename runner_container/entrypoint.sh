@@ -2,7 +2,7 @@
 set -e
 
 # These come from the ENV in Dockerfile or ACI Runtime
-GH_PAT=""
+GH_PAT="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"
 RESPONSE=$(curl -L \
             -X POST \
             -H "Accept: application/vnd.github+json" \
