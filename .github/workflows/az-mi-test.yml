@@ -1,4 +1,4 @@
-name: Stage 1 - Deploy GitHub Self-Hosted Runner and Destroy
+name: Deploy GitHub Self-Hosted Runner and Destroy
 
 on:
   workflow_dispatch:
@@ -164,23 +164,24 @@ jobs:
         run: |
           cd ./terraform_runner
 
-          # Initialize optional replacement argument
-          $extra_args = ""
+          # Initialize as an empty array
+          $plan_args = @()
+
           if ("${{ github.event.inputs.force_rebuild }}" -eq "true") {
             Write-Host "Force rebuild requested. Marking runner_vm for replacement."
-            $extra_args = "-replace=azurerm_linux_virtual_machine.runner_vm"
+            $plan_args += "-replace=azurerm_linux_virtual_machine.runner_vm"
           }
           
-          # Pass variables using the -var flag
+          # Pass variables and the optional array
           terraform plan `
             -var="resource_group_name=${{ env.RUNNER_RESOURCE_GROUP }}" `
             -var="ssh_public_key=${{ steps.ssh-key.outputs.SSH_PUBLIC_KEY }}" `
             -var="github_runner_token=${{ steps.generate-token.outputs.RUNNER_TOKEN }}" `
             -var='tags={ "Environment": "${{ github.event.inputs.environment }}", "Project": "Citrix-DAAS-Golden-Image", "ManagedBy": "Terraform", "Stage": "Stage1-Runner", "DeployedBy": "GitHub-Actions" }' `
-            $extra_args `
+            @plan_args `
             -out=tfplan `
             -input=false
-    
+          
       - name: Upload Plan
         uses: actions/upload-artifact@v4
         with:
